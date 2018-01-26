@@ -14,22 +14,16 @@ enum DeviceStatus: Int {
     case connecting = 1
     case connected = 2
 }
+let heartRateServiceCBUUID = CBUUID(string: "0x180D")
+let heartRateMeasurementCharacteristicCBUUID = CBUUID(string: "2A37")
+let bodySensorLocationCharacteristicCBUUID = CBUUID(string: "2A38")
 
 
 class ViewController: UITableViewController{
-    //var deviceList:[(String, CBPeripheral)] = []
-    let heartRateServiceCBUUID = CBUUID(string: "0x180D")
-    let heartRateMeasurementCharacteristicCBUUID = CBUUID(string: "2A37")
-    let bodySensorLocationCharacteristicCBUUID = CBUUID(string: "2A38")
-
+    
     var centralManager: CBCentralManager?
     var deviceList = Array<(nickname: String, device: CBPeripheral, lastHR: Int)>()
     
-    //TODO make labels appear for now when a device is added (using constraints)
-    func onHeartRateReceived(_ heartRate: Int) {
-        // heartRateLabel.text = String(heartRate)
-        print("BPM: \(heartRate)")
-    }
     
     func startSearchingForHeartRateDevices(stopAfterSeconds: Double = 5.0) {
         print("Start Scanning...")
@@ -87,21 +81,6 @@ class ViewController: UITableViewController{
         return -1
     }
     
-   // func getNumberOfConnectedDevices() -> Int {
-//        var numberOfConnectedDevices = 0
-//        for device in deviceList {
-//            if (device.device.state.rawValue == DeviceStatus.connected.rawValue) {
-//                numberOfConnectedDevices += 1
-//            }
-//        }
-//
-//        return numberOfConnectedDevices
-  
-    
-    
-    //return getConnectedDevices().count
-    //}
-    
     func getConnectedDevices() -> Array<(nickname: String, device: CBPeripheral, lastHR: Int)> {
         var connectedDevices:Array<(nickname: String, device: CBPeripheral, lastHR: Int)> = []
         for device in deviceList {
@@ -118,11 +97,7 @@ class ViewController: UITableViewController{
             tableView.reloadData()//reloads all data
         }
     }
-    
-    func updateTableData() {
-        
-    }
-    
+
     func confirmDisconnect(indexPath: IndexPath, resetNickname:Bool = false) {
         let alert = UIAlertController(title: "Disconnect", message: "Are you sure you want to disconnect from '\(deviceList[indexPath[1]].nickname)'?", preferredStyle: .actionSheet)
         
@@ -369,6 +344,10 @@ extension ViewController: CBCentralManagerDelegate {
     
 }
 
+
+
+
+
     
 extension ViewController: CBPeripheralDelegate {
        
@@ -455,5 +434,6 @@ extension ViewController: CBPeripheralDelegate {
             // Heart Rate Value Format is in the 2nd and 3rd bytes
             return (Int(byteArray[1]) << 8) + Int(byteArray[2])
         }
+        /*So regarding the << 8, if the heart rate value is a 16-bit number, it will be present in the 2nd and 3rd bytes. Let’s say the 2nd byte has a value of 1, and the 3rd byte has a value of 5. The value of the 2nd bit has to be multiplied by 256 and then has to be added to the 3rd bit to give you the heart rate, which would be 256 + 5 = 261. Shifting the number by 8 bits to the left is the same as multiplying by 256. https://www.raywenderlich.com/177848/core-bluetooth-tutorial-for-ios-heart-rate-monitor */
     }
 } 
