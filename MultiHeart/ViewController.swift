@@ -377,15 +377,17 @@ extension ViewController: CBPeripheralDelegate {
     
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        let index = findInDeviceList(peripheral: peripheral)
-        if (index != -1) {
-            tableView.beginUpdates()
-            deviceList.remove(at: index)
-            tableView.endUpdates()
-            
-        } else {
-            print("couldnt find device in list")
-        }
+//        let index = findInDeviceList(peripheral: peripheral)
+//        if (index != -1) {
+//            blockRefreshes()
+//            tableView.beginUpdates()
+//            deviceList.remove(at: index)
+//            tableView.endUpdates()
+//            unblockRefreshes()
+//            
+//        } else {
+//            print("couldnt find device in list")
+//        }
     }
     
     
