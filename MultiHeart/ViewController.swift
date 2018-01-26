@@ -24,6 +24,7 @@ class ViewController: UITableViewController{
     var centralManager: CBCentralManager?
     var deviceList = Array<(nickname: String, device: CBPeripheral, lastHR: Int)>()
     
+    var shouldRefresh: Bool = true
     
     func startSearchingForHeartRateDevices(stopAfterSeconds: Double = 5.0) {
         print("Start Scanning...")
@@ -92,8 +93,8 @@ class ViewController: UITableViewController{
     }
     
     func refreshView(secondsUntilRepeat: Double = 1) {
-        if (!tableView.isEditing){
-            print("RELOADING DATAAAAAAAAAA")
+        if (!tableView.isEditing && shouldRefresh){
+            print("RELOADING DATA...")
             tableView.reloadData()//reloads all data
         }
         
@@ -102,6 +103,14 @@ class ViewController: UITableViewController{
                 self.refreshView()
             }
         }
+    }
+    
+    func blockRefreshes(){
+        shouldRefresh = false
+    }
+    
+    func unblockRefreshes(){
+        shouldRefresh = true
     }
 
     func confirmDisconnect(indexPath: IndexPath, resetNickname:Bool = false) {
@@ -122,6 +131,7 @@ class ViewController: UITableViewController{
     
     func handleDisconnectDevice(indexPath: IndexPath) {
         
+        blockRefreshes()
         tableView.beginUpdates()
 
         
@@ -151,7 +161,7 @@ class ViewController: UITableViewController{
         centralManager?.cancelPeripheralConnection(deviceList[indexPath[1]].device)
         
         tableView.endUpdates()
-        
+        unblockRefreshes()
     }
     
     func handleChangeNickname(indexPath: IndexPath) {
