@@ -91,10 +91,16 @@ class ViewController: UITableViewController{
         return connectedDevices
     }
     
-    func refreshView() {
+    func refreshView(secondsUntilRepeat: Double = 1) {
         if (!tableView.isEditing){
             print("RELOADING DATAAAAAAAAAA")
             tableView.reloadData()//reloads all data
+        }
+        
+        if (secondsUntilRepeat > 0) {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + secondsUntilRepeat) {
+                self.refreshView()
+            }
         }
     }
 
@@ -206,6 +212,8 @@ class ViewController: UITableViewController{
         tableView.dataSource = self
         tableView.estimatedRowHeight = 85.0
         tableView.rowHeight = UITableViewAutomaticDimension
+        
+        refreshView()//start the loop
     }
     
     override func didReceiveMemoryWarning() {
@@ -339,7 +347,7 @@ extension ViewController: CBCentralManagerDelegate {
             let entry = (nickname: peripheral.name!, device: peripheral, lastHR: 0)
             deviceList.append(entry) //add it
         }
-        refreshView()
+        refreshView(secondsUntilRepeat: 0)//force refresh without looping as soon as a new peripheral is discovered
     }
     
 }
@@ -353,7 +361,7 @@ extension ViewController: CBPeripheralDelegate {
        
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("Connected to: " + String(describing: peripheral))
-        refreshView()
+        refreshView(secondsUntilRepeat: 0)//force refresh without looping as soon as a new peripheral is connected
        peripheral.discoverServices([heartRateServiceCBUUID])
     }
     
@@ -414,7 +422,7 @@ extension ViewController: CBPeripheralDelegate {
                     print("couldnt find device in list")
                 }
                 
-                refreshView()
+                //refreshView()//can remove in favor of timer
             default:
                 print("Unhandled Characteristic UUID: \(characteristic.uuid)")
         }
