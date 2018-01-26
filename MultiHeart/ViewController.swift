@@ -31,12 +31,27 @@ class ViewController: UITableViewController{
         print("BPM: \(heartRate)")
     }
     
-    func startSearchingForHeartRateDevices() {
+    func startSearchingForHeartRateDevices(stopAfterSeconds: Double = 5.0) {
+        print("Start Scanning...")
         centralManager?.scanForPeripherals(withServices: [heartRateServiceCBUUID])
+        
+        if (stopAfterSeconds > 0) {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + stopAfterSeconds) {
+                self.stopSearchingForHeartRateDevices()
+            }
+        }
+        
     }
     
-    func stopSearchingForHeartRateDevices() {
+    func stopSearchingForHeartRateDevices(restartAfter: Double = 20.0) {
+        print("Stop Scanning...")
         centralManager?.stopScan()
+        
+        if (restartAfter > 0) {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + restartAfter) {
+                self.startSearchingForHeartRateDevices()
+            }
+        }
     }
     
     func setNicknameForDeviceAtIndex(index: Int, nickname: String) {
@@ -337,7 +352,7 @@ extension ViewController: CBCentralManagerDelegate {
             print("central.state is .poweredOff")
         case .poweredOn:
             print("central.state is .poweredOn")
-            startSearchingForHeartRateDevices()
+            startSearchingForHeartRateDevices(stopAfterSeconds: 45)
         }
     }
     
